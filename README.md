@@ -7,8 +7,12 @@
 
 This repository contains the written answers for all five questions plus a working
 implementation of question 1, and two small runnable proofs for the concurrency and
-webhook questions. The answers are in English. The product dashboard is a real
-application, not a screenshot.
+webhook questions. The answers are in English. The dashboard is a running application,
+and the screenshots below come from it.
+
+Each answer opens with a short answer in three bullets. If you only have ten minutes,
+read those. The detail underneath explains the trade-offs, the failure modes, and the
+measurements behind each decision.
 
 ## Contents
 
