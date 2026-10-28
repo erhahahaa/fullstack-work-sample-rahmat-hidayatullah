@@ -19,9 +19,12 @@
   "type": "module",
   "scripts": {
     "dev": "vp run -r dev",
+    "start": "vp run -r dev",
     "build": "vp run -r build",
+    "check": "vp check",
+    "check:fix": "vp check --fix",
     "check-types": "vp run -r check-types",
-    "check": "oxlint && oxfmt --write",
+    "test": "vp run -r test",
     "lint": "vp lint",
     "format": "vp fmt",
     "staged": "vp staged",

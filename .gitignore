@@ -9,7 +9,6 @@ build
 *.tsbuildinfo
 
 # Generated files
-apps/web/src/routeTree.gen.ts
 local.db
 local.db-*
 
@@ -56,3 +55,6 @@ coverage
 .cache
 tmp
 temp
+
+# Tooling artifacts
+.playwright-mcp/
