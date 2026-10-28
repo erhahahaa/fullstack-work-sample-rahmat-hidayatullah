@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as NaiveRouteImport } from './routes/naive'
+import { Route as OptimizedRouteImport } from './routes/optimized'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NaiveRoute = NaiveRouteImport.update({
+  id: '/naive',
+  path: '/naive',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OptimizedRoute = OptimizedRouteImport.update({
+  id: '/optimized',
+  path: '/optimized',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/naive': typeof NaiveRoute
+  '/optimized': typeof OptimizedRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/naive': typeof NaiveRoute
+  '/optimized': typeof OptimizedRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/naive': typeof NaiveRoute
+  '/optimized': typeof OptimizedRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/naive' | '/optimized'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/naive' | '/optimized'
+  id: '__root__' | '/' | '/naive' | '/optimized'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  NaiveRoute: typeof NaiveRoute
+  OptimizedRoute: typeof OptimizedRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/naive': {
+      id: '/naive'
+      path: '/naive'
+      fullPath: '/naive'
+      preLoaderRoute: typeof NaiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/optimized': {
+      id: '/optimized'
+      path: '/optimized'
+      fullPath: '/optimized'
+      preLoaderRoute: typeof OptimizedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  NaiveRoute: NaiveRoute,
+  OptimizedRoute: OptimizedRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

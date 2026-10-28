@@ -14,11 +14,11 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
   head: () => ({
     meta: [
       {
-        title: "fullstack-work-sample-rahmat-hidayatullah",
+        title: "Product Table Performance Demo",
       },
       {
         name: "description",
-        content: "fullstack-work-sample-rahmat-hidayatullah is a web application",
+        content: "Naive and optimized React product tables backed by a shared stock feed",
       },
     ],
     links: [
@@ -40,13 +40,13 @@ function RootComponent() {
         disableTransitionOnChange
         storageKey="vite-ui-theme"
       >
-        <div className="grid grid-rows-[auto_1fr] h-svh">
+        <div className="grid h-svh grid-rows-[auto_1fr] overflow-hidden">
           <Header />
           <Outlet />
         </div>
         <Toaster richColors />
       </ThemeProvider>
-      <TanStackRouterDevtools position="bottom-left" />
+      {import.meta.env.DEV ? <TanStackRouterDevtools position="bottom-left" /> : null}
     </>
   );
 }
