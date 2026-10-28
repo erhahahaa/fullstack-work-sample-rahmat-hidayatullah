@@ -1,0 +1,31 @@
+%% Question 2: production topology for the flash sale path.
+%% The local demo collapses this into one Bun process plus a SQLite file.
+flowchart LR
+  C[Browser / mobile client] --> E[Edge: CDN, WAF, bot check]
+  E --> RL[Rate limit / waiting room]
+  RL --> LB[Load balancer]
+  LB --> A1[API instance 1]
+  LB --> A2[API instance 2]
+  LB --> AN[API instance N]
+
+  A1 --> R[(Redis: jti denylist, cache, counters)]
+  A2 --> R
+  AN --> R
+
+  A1 --> PGB[PgBouncer, transaction mode]
+  A2 --> PGB
+  AN --> PGB
+  PGB --> PG[(Postgres primary)]
+  PG --> RR[(Postgres replica)]
+
+  A1 -. catalogue reads .-> RR
+  A2 -. catalogue reads .-> RR
+  AN -. catalogue reads .-> RR
+
+  A1 --> Q[[Queue: partitioned by SKU]]
+  A2 --> Q
+  AN --> Q
+  Q --> W1[Order worker]
+  Q --> W2[Order worker]
+  W1 --> PGB
+  W2 --> PGB

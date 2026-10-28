@@ -1,0 +1,34 @@
+%% Question 3: checkout, signed webhook, async apply, frontend polling.
+sequenceDiagram
+  autonumber
+  participant C as Customer
+  participant F as Frontend
+  participant A as API
+  participant D as Postgres
+  participant Q as Queue
+  participant W as Worker
+  participant G as Payment gateway
+
+  C->>F: Confirm payment
+  F->>A: POST /checkout (Idempotency-Key)
+  A->>D: Insert order (pending) + reservation
+  A->>G: Create payment intent
+  G-->>A: client_secret
+  A-->>F: 201 order, client_secret
+  F->>G: Confirm card (SDK, card data never reaches us)
+  G-->>F: Redirect or result
+  F->>A: GET /orders/:id/status
+  A-->>F: pending
+
+  Note over G,A: Webhook is independent of the browser
+  G->>A: POST /webhooks/payments (signed, timestamped)
+  A->>A: Verify HMAC over raw body, check timestamp
+  A->>D: INSERT event ON CONFLICT DO NOTHING
+  A-->>G: 200 in under 100ms
+  A->>Q: Notify worker (or it polls with SKIP LOCKED)
+  Q->>W: Deliver
+  W->>D: Guarded transition + processed_at, one tx
+  F->>A: GET /orders/:id/status
+  A->>D: Read order
+  A-->>F: paid
+  F->>F: Stop polling
