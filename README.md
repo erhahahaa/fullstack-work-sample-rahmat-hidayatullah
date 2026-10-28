@@ -28,9 +28,13 @@ measurements behind each decision.
 ## How to run
 
 Requirements: Bun 1.4 or newer, Node 22.12 or newer on the PATH for the Vite+
-type checker.
+type checker. The workspace uses Bun catalogs, so `npm install` will not resolve
+the dependencies.
 
 ```bash
+# install Bun if it is not on the machine
+curl -fsSL https://bun.sh/install | bash
+
 bun install
 bun run dev
 ```
@@ -181,6 +185,15 @@ The selector returns a primitive, not an object. That is deliberate. A selector 
 
 ```tsx
 // apps/frontend/src/features/products/components/product-grid.tsx
+const cellProps = useMemo<GridCellProps>(() => ({ ids, columns: PRODUCT_COLUMNS }), [ids]);
+const columnWidth = useCallback(
+  (index: number, data: GridCellProps) => data.columns[index]?.width ?? 0,
+  [],
+);
+const rowKey = useCallback(
+  ({ data, rowIndex }: { data: GridCellProps; rowIndex: number }) => data.ids[rowIndex] ?? rowIndex,
+  [],
+);
 <Grid<GridCellProps>
   cellComponent={GridCell}
   cellProps={cellProps}
@@ -193,7 +206,7 @@ The selector returns a primitive, not an object. That is deliberate. A selector 
   defaultHeight={600}
   onCellsRendered={handleCellsRendered}
   style={{ height: ids.length * ROW_HEIGHT, width: "100%" }}
-/>
+/>;
 ```
 
 `rowKey` and `columnWidth` are wrapped in `useCallback` because the library cannot memoize functions that run during render. The v2 documentation calls this out explicitly. Ignoring it produces a new key function on every render and quietly defeats the row cache.
@@ -1382,12 +1395,25 @@ The backend demos run against SQLite. SQLite serializes writers, so the concurre
 - Amazon VPC and NAT gateway pricing, https://aws.amazon.com/vpc/pricing/
 - Amazon RDS for PostgreSQL pricing, https://aws.amazon.com/rds/postgresql/pricing/
 
-### Rubric self check
+### Requirements coverage
 
-| Rubric line                                                                          | Weight | Where it is answered                                                                                   |
-| ------------------------------------------------------------------------------------ | ------ | ------------------------------------------------------------------------------------------------------ |
-| React hooks, memoization, rendering performance, code cleanliness                    | 25%    | Question 1, `apps/frontend/src/features/products`, store and component tests                           |
-| REST and gRPC understanding, concurrency, database locking, JWT security             | 25%    | Question 2, `docs/api-surface.md`, `docs/race-conditions.sql`, `apps/backend/src/routes/flash-sale.ts` |
-| Idempotency, fault tolerance, queueing, real-time sync to the frontend               | 20%    | Question 3, `apps/backend/src/routes/webhooks.ts`, the polling hook sketch                             |
-| Cloud cost analysis, objectivity on monolith versus microservices, cost efficiency   | 15%    | Question 4, `docs/tco-assumptions.md`                                                                  |
-| Communicating technical risk to the business, LTV, CAC, churn, sprint prioritization | 15%    | Question 5, the option memo and the capacity model                                                     |
+| #   | Requirement                                           | Weight | Where it is answered                                                          |
+| --- | ----------------------------------------------------- | ------ | ----------------------------------------------------------------------------- |
+| 1   | Q1: causes of unnecessary re-render on large datasets | 25%    | Diagnosis in three layers                                                     |
+| 2   | Q1: React component with hooks and virtualization     | 25%    | The fix, in the order that matters, and `apps/frontend/src/features/products` |
+| 3   | Q1: state management strategy for per-item updates    | 25%    | State management comparison                                                   |
+| 4   | Q2: backend stack choice and rationale                | 25%    | Stack: Bun and Hono for the demo, Postgres for the truth                      |
+| 5   | Q2: JWT revocation without breaking statelessness     | 25%    | JWT revocation without pretending to be stateless                             |
+| 6   | Q2: race condition on the last unit, SQL and NoSQL    | 25%    | The last unit: 100 buyers, one row, and `docs/race-conditions.sql`            |
+| 7   | Q2: flow diagram                                      | 25%    | Architecture, and `diagrams/q2-architecture.mmd`                              |
+| 8   | Q2: REST and gRPC understanding, from the rubric      | 25%    | API surface, and `docs/api-surface.md`                                        |
+| 9   | Q3: webhook idempotency                               | 20%    | Idempotency is a unique constraint, not a SELECT                              |
+| 10  | Q3: retry, polling, cron, and Dead Letter Queue       | 20%    | Retries and reconciliation                                                    |
+| 11  | Q3: frontend status without hammering the server      | 20%    | Telling the frontend                                                          |
+| 12  | Q3: queueing, from the rubric                         | 20%    | Idempotency is a unique constraint, and Retries and reconciliation            |
+| 13  | Q4: TCO for an early to mid stage startup             | 15%    | TCO at a glance, and `docs/tco-assumptions.md`                                |
+| 14  | Q4: hidden infrastructure and operational costs       | 15%    | Hidden infrastructure costs, and Hidden operational costs                     |
+| 15  | Q4: compromise architecture                           | 15%    | The compromise: a modular monolith                                            |
+| 16  | Q5: communicating debt to non-technical stakeholders  | 15%    | The conversation with the PM, and One-page template for the PM                |
+| 17  | Q5: reliability and LTV, CAC, churn                   | 15%    | Reliability is a churn lever, and Churn versus CAC                            |
+| 18  | Q5: sprint prioritization framework                   | 15%    | The prioritization framework                                                  |
