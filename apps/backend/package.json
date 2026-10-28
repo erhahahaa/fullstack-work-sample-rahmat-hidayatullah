@@ -1,7 +1,10 @@
 {
   "name": "backend",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "demo:race": "bun run src/scripts/race-demo.ts",
+    "demo:webhook": "bun run src/scripts/webhook-demo.ts",
+    "dev": "PORT=3002 bun run --hot src/index.ts",
+    "test": "bun test"
   },
   "dependencies": {
     "hono": "^4.13.14"
